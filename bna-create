@@ -1,0 +1,48 @@
+#!/bin/bash
+echo "creating .bna (need: .cto .json .acl .js optional: .md)"
+
+command -v zip >/dev/null 2>&1 || { echo >&2 "Script requires 'zip' but it's not installed. Abort..."; exit 1; }
+
+CTO=$(ls *.cto | wc -l)
+JSON=$(ls *.json | wc -l)
+ACL=$(ls *.json | wc -l)
+JS=$(ls *.js | wc -l)
+MD=$(ls *.md | wc -l)
+
+if [ "$CTO" -gt 1 ] || [ "$JSON" -gt 1 ] || [ "$ACL" -gt 1 ] || [ "$JS" -gt 1 ] || [ "$MD" -gt 1 ]
+then
+	echo "You have multiple files of a type in this folder. Abort..."
+	exit 1
+elif [ "$CTO" -ne 1 ] || [ "$JSON" -ne 1 ] || [ "$ACL" -ne 1 ] || [ "$JS" -ne 1 ]
+then
+	echo "You have not all files in this folder. Abort..."
+	exit 1
+fi
+
+mkdir "temp"
+mkdir "temp/models"
+mkdir "temp/lib"
+
+cp $(find *.cto) ./temp/models
+cp $(find *.json) ./temp
+cp $(find *.acl) ./temp
+cp $(find *.js) ./temp/lib
+if [ "$MD" -eq 1 ]
+then
+	cp $(find *.md) ./temp
+fi
+
+cd temp
+if [ $1 ]
+then
+	zip -r -0 -q ../$1.bna .
+else
+	zip -r -0 -q ../composer.bna .
+fi
+cd ..
+
+rm -r temp
+
+echo "composer.bna (probably) created."
+
+#echo $((CTO + 1))
